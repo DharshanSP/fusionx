@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, X } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, X, FileText } from 'lucide-react';
 
 export default function UploadBox({ file, setFile }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -20,7 +20,8 @@ export default function UploadBox({ file, setFile }) {
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile.type.startsWith('image/')) {
+      const validTypes = ['.jpg', '.jpeg', '.png', '.pdf', '.docx', '.pptx', '.txt'];
+      if (validTypes.some(ext => droppedFile.name.toLowerCase().endsWith(ext))) {
         setFile(droppedFile);
       }
     }
@@ -55,7 +56,7 @@ export default function UploadBox({ file, setFile }) {
             type="file"
             ref={inputRef}
             onChange={handleFileChange}
-            accept="image/png, image/jpeg, image/jpg"
+            accept=".jpg,.jpeg,.png,.pdf,.docx,.pptx,.txt"
             className="hidden"
           />
           <div className="flex flex-col items-center justify-center space-y-4">
@@ -66,18 +67,22 @@ export default function UploadBox({ file, setFile }) {
               <p className="text-base font-medium text-slate-700">
                 Click to upload <span className="text-slate-400 font-normal">or drag and drop</span>
               </p>
-              <p className="text-sm text-slate-400 mt-1">SVG, PNG, JPG or GIF (max. 5MB)</p>
+              <p className="text-sm text-slate-400 mt-1">Supported: Images, PDF, Word, PPTX, TXT</p>
             </div>
           </div>
         </div>
       ) : (
         <div className="relative group border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm p-4 flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 relative">
-            <img 
-              src={URL.createObjectURL(file)} 
-              alt="Preview" 
-              className="w-full h-full object-cover"
-            />
+          <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 relative flex items-center justify-center">
+            {file.type.startsWith('image/') ? (
+              <img 
+                src={URL.createObjectURL(file)} 
+                alt="Preview" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <FileText size={28} className="text-indigo-400" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-slate-900 truncate">{file.name}</p>

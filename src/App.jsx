@@ -11,7 +11,7 @@ function App() {
   const [response, setResponse] = useState(null);
 
   const handleSubmit = () => {
-    if (!file || !query.trim()) return;
+    if (!file) return;
 
     setIsLoading(true);
     setResponse(null);
@@ -20,7 +20,7 @@ function App() {
     setTimeout(() => {
       setIsLoading(false);
       setResponse(
-        `Based on the image provided, it appears to be a landscape with mountains in the background and a lake in the foreground. Here are some details related to your query "${query}":\n\nThe lighting suggests it might be early morning or late afternoon. If you were looking for specific architectural features, there don't appear to be any prominent structures visible in this frame.`
+        `Based on the file provided, it appears to contain structured content. Here are some details${query.trim() ? ` related to your query "${query}"` : ''}:\n\nThe extracted insights suggest the document/image holds context matching our multimodal support. If you were looking for specific architectural features or text extraction, our AWS Serverless architecture aggregates it successfully.`
       );
     }, 2500); // 2.5s delay to simulate cloud processing
   };
@@ -35,10 +35,10 @@ function App() {
         <div className="w-full space-y-6">
           <div className="text-center mb-10 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-              Analyze Images Instantly
+              Analyze Files Instantly
             </h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">
-              Upload an image, ask a question, and let our serverless AI compute the answer in seconds.
+              Upload a file, ask an optional question, and let our serverless AI process your request in seconds.
             </p>
           </div>
 

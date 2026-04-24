@@ -5,7 +5,7 @@ export default function QueryInput({ query, setQuery, onSubmit, isLoading, disab
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if(!disabled && query.trim()) {
+      if(!disabled) {
         onSubmit();
       }
     }
@@ -18,7 +18,7 @@ export default function QueryInput({ query, setQuery, onSubmit, isLoading, disab
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask something about the image..."
+          placeholder="Ask something about your file (optional)..."
           className="w-full bg-transparent border-0 rounded-2xl py-4 pl-5 pr-14 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-0 resize-none h-14"
           rows={1}
         />
@@ -26,9 +26,9 @@ export default function QueryInput({ query, setQuery, onSubmit, isLoading, disab
           <button
             type="button"
             onClick={onSubmit}
-            disabled={disabled || !query.trim()}
+            disabled={disabled}
             className={`p-2 rounded-xl flex items-center justify-center transition-all duration-300 ${
-              disabled || !query.trim()
+              disabled
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5'
             }`}
@@ -36,7 +36,7 @@ export default function QueryInput({ query, setQuery, onSubmit, isLoading, disab
             {isLoading ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              <Send size={18} className={query.trim() && !disabled ? 'ml-0.5' : ''} />
+              <Send size={18} className={!disabled ? 'ml-0.5' : ''} />
             )}
           </button>
         </div>
