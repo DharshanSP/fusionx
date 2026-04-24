@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import UploadBox from './components/UploadBox';
 import QueryInput from './components/QueryInput';
 import ResponseCard from './components/ResponseCard';
+import { API_URL, BUCKET_NAME } from './config';
 
 function App() {
   const [file, setFile] = useState(null);
@@ -10,19 +11,51 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!file) return;
 
     setIsLoading(true);
     setResponse(null);
 
-    // Simulate API call to AWS Serverless / AI Endpoint
-    setTimeout(() => {
+    try {
+      // 1. Upload to S3
+      const uploadUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${file.name}`;
+      
+      const s3Response = await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+      });
+
+      if (!s3Response.ok) {
+        throw new Error(`S3 Upload Failed: ${s3Response.status} ${s3Response.statusText}`);
+      }
+
+      // 2. Call your API
+      const apiRes = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "qd6HlZLrBF5DLDnwDBTgZ75y9GBh0hg7JxoM41a9"
+        },
+        body: JSON.stringify({
+          bucket: BUCKET_NAME,
+          image: file.name,
+          query: query,
+        }),
+      });
+
+      if (!apiRes.ok) {
+        throw new Error(`Lambda API Failed: ${apiRes.status} ${apiRes.statusText}`);
+      }
+
+      const data = await apiRes.json();
+      setResponse(data);
+    } catch (err) {
+      console.error(err);
+      setResponse({ error: err.message || "Something went wrong" });
+    } finally {
       setIsLoading(false);
-      setResponse(
-        `Based on the file provided, it appears to contain structured content. Here are some details${query.trim() ? ` related to your query "${query}"` : ''}:\n\nThe extracted insights suggest the document/image holds context matching our multimodal support. If you were looking for specific architectural features or text extraction, our AWS Serverless architecture aggregates it successfully.`
-      );
-    }, 2500); // 2.5s delay to simulate cloud processing
+    }
   };
 
   return (

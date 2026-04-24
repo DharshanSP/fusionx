@@ -47,9 +47,39 @@ export default function ResponseCard({ response, isLoading }) {
               </div>
             ) : (
               <div className="bg-[#1a1a1f]/80 rounded-2xl rounded-tl-none sm:rounded-tl-2xl border border-white/5 p-5 md:p-6 shadow-inner relative">
-                <p className="text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-[15px] sm:text-base selection:bg-indigo-500/30 selection:text-white">
-                  {response}
-                </p>
+                {typeof response === 'string' ? (
+                  <p className="text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-[15px] sm:text-base selection:bg-indigo-500/30 selection:text-white">
+                    {response}
+                  </p>
+                ) : response?.error ? (
+                  <p className="text-red-400">{response.error}</p>
+                ) : (
+                  <div className="space-y-6">
+                    {response?.labels && response.labels.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-3">Detected Objects</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {response.labels.map((label, i) => (
+                            <span key={i} className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-200 shadow-sm">
+                              {label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {response?.answer && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-3">AI Answer</h3>
+                        <p className="text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-[15px] sm:text-base selection:bg-indigo-500/30 selection:text-white">
+                          {response.answer}
+                        </p>
+                      </div>
+                    )}
+                    {(!response?.labels && !response?.answer && response) && (
+                       <p className="text-slate-200 break-words">{JSON.stringify(response)}</p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
