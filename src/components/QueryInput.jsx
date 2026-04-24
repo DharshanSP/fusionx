@@ -13,30 +13,31 @@ export default function QueryInput({ query, setQuery, onSubmit, isLoading, disab
 
   return (
     <div className="w-full relative animate-slide-up" style={{ animationDelay: '100ms' }}>
-      <div className="relative flex items-center bg-white rounded-2xl border border-slate-200 shadow-sm focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all duration-300">
+      <div className={`relative flex items-center bg-[#1a1a1f] rounded-3xl premium-glow transition-all duration-300 ${!disabled ? 'shadow-[0_8px_30px_rgba(99,102,241,0.1)]' : ''}`}>
         <textarea
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask something about your file (optional)..."
-          className="w-full bg-transparent border-0 rounded-2xl py-4 pl-5 pr-14 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-0 resize-none h-14"
+          placeholder="Ask a question about the file (optional)..."
+          className="w-full bg-transparent border-0 rounded-3xl py-4 pl-6 pr-16 text-sm text-slate-200 placeholder:text-slate-600 focus:ring-0 resize-none h-14 md:text-base outline-none disabled:opacity-50"
           rows={1}
+          disabled={disabled}
         />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+        <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
           <button
             type="button"
             onClick={onSubmit}
             disabled={disabled}
-            className={`p-2 rounded-xl flex items-center justify-center transition-all duration-300 ${
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 ${
               disabled
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                ? 'bg-white/5 text-slate-600 cursor-not-allowed hidden'
+                : 'bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] hover:-translate-y-0.5'
             }`}
           >
             {isLoading ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              <Send size={18} className={!disabled ? 'ml-0.5' : ''} />
+              <Send size={18} className="ml-0.5" strokeWidth={2} />
             )}
           </button>
         </div>

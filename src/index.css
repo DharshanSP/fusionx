@@ -4,16 +4,53 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-background text-slate-300;
+  }
+  
+  /* Scrollbar styling for sleek modern look */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl;
+    @apply bg-[#121214]/60 backdrop-blur-2xl border border-white/5 shadow-2xl rounded-3xl relative overflow-hidden;
   }
   
   .glass-header {
-    @apply bg-white/60 backdrop-blur-lg border-b border-white/30 sticky top-0 z-50;
+    @apply bg-[#0A0A0B]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50 transition-all duration-300;
+  }
+  
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-display animate-gradient-x;
+  }
+  
+  .premium-glow {
+    position: relative;
+  }
+  
+  .premium-glow::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.4) 0%, rgba(168,85,247,0.4) 50%, rgba(236,72,153,0.1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 }
