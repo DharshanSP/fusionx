@@ -42,11 +42,11 @@ export default function UploadBox({ file, setFile }) {
     <div className="w-full relative animate-slide-up">
       {!file ? (
         <div
-          className={`relative overflow-hidden group rounded-3xl p-10 text-center transition-all duration-300 ease-out cursor-pointer ${
+          className={`relative overflow-hidden group rounded-[2.5rem] p-16 md:p-20 text-center transition-all duration-500 ease-out cursor-pointer ${
             isDragging
-              ? 'bg-indigo-500/10 border-indigo-500/50'
-              : 'bg-[#1a1a1f]/60 hover:bg-[#202026]/80 border-white/5 hover:border-indigo-500/30'
-          } border border-dashed`}
+              ? 'bg-indigo-500/20 border-indigo-400 scale-[1.02] shadow-[0_0_50px_rgba(99,102,241,0.2)]'
+              : 'bg-[#1a1a1f]/40 hover:bg-[#1a1a1f]/80 backdrop-blur-xl border-white/10 hover:border-indigo-400/50 hover:shadow-[0_0_40px_rgba(99,102,241,0.1)]'
+          } border-2 border-dashed`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -62,9 +62,9 @@ export default function UploadBox({ file, setFile }) {
             accept=".jpg,.jpeg,.png,.pdf,.docx,.pptx,.txt"
             className="hidden"
           />
-          <div className="flex flex-col items-center justify-center space-y-5 relative z-10">
-            <div className={`p-5 rounded-2xl transition-all duration-500 ${isDragging ? 'bg-indigo-500/20 text-indigo-300 scale-110 shadow-[0_0_30px_rgba(99,102,241,0.3)]' : 'bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-indigo-300 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)] group-hover:-translate-y-1'}`}>
-              <UploadCloud size={36} strokeWidth={1.5} />
+          <div className="flex flex-col items-center justify-center space-y-6 relative z-10">
+            <div className={`p-6 rounded-3xl transition-all duration-500 ${isDragging ? 'bg-indigo-500/20 text-indigo-300 scale-110 shadow-[0_0_40px_rgba(99,102,241,0.4)]' : 'bg-white/5 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-300 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] group-hover:-translate-y-2'}`}>
+              <UploadCloud size={48} strokeWidth={1.5} />
             </div>
             <div>
               <p className="text-lg font-medium text-slate-200">
@@ -75,8 +75,8 @@ export default function UploadBox({ file, setFile }) {
           </div>
         </div>
       ) : (
-        <div className="relative group premium-glow bg-[#1a1a1f] rounded-3xl overflow-hidden p-5 flex items-center gap-5 layout-card">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-black/40 flex-shrink-0 relative flex items-center justify-center border border-white/5 shadow-inner">
+        <div className="relative group premium-glow bg-[#1a1a1f]/80 backdrop-blur-xl rounded-[2rem] overflow-hidden p-6 flex items-center gap-6 layout-card border border-white/5 hover:border-indigo-500/30 transition-all duration-500 hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] hover:-translate-y-1">
+          <div className="w-20 h-20 rounded-2xl overflow-hidden bg-black/50 flex-shrink-0 relative flex items-center justify-center border border-white/10 shadow-inner group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)] transition-all">
             {file.type.startsWith('image/') ? (
               <img 
                 src={URL.createObjectURL(file)} 

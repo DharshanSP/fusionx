@@ -12,22 +12,27 @@ function App() {
   const [response, setResponse] = useState(null);
 
   const handleSubmit = async () => {
-    if (!file) return;
+    if (!file && !query.trim()) return;
 
     setIsLoading(true);
     setResponse(null);
 
     try {
-      // 1. Upload to S3
-      const uploadUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${file.name}`;
+      let uploadedFileName = "";
       
-      const s3Response = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-      });
+      if (file) {
+        // 1. Upload to S3 only if a file was selected
+        const uploadUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${file.name}`;
+        
+        const s3Response = await fetch(uploadUrl, {
+          method: "PUT",
+          body: file,
+        });
 
-      if (!s3Response.ok) {
-        throw new Error(`S3 Upload Failed: ${s3Response.status} ${s3Response.statusText}`);
+        if (!s3Response.ok) {
+          throw new Error(`S3 Upload Failed: ${s3Response.status} ${s3Response.statusText}`);
+        }
+        uploadedFileName = file.name;
       }
 
       // 2. Call your API
@@ -39,7 +44,7 @@ function App() {
         },
         body: JSON.stringify({
           bucket: BUCKET_NAME,
-          image: file.name,
+          image: uploadedFileName,
           query: query,
         }),
       });
@@ -65,8 +70,9 @@ function App() {
         {/* Core dark gradient */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-background to-background"></div>
         {/* Animated glowing blobs */}
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[120px] animate-blob"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px] animate-blob" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] animate-blob"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/20 blur-[120px] animate-blob" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-[40%] left-[30%] w-[30%] h-[30%] rounded-full bg-pink-600/10 blur-[100px] animate-blob" style={{ animationDelay: '4s' }}></div>
       </div>
 
       <Navbar />
@@ -83,10 +89,10 @@ function App() {
               </span>
               System Online
             </div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight mb-5 font-display drop-shadow-sm leading-tight pb-2 pt-2">
-              Process <span className="gradient-text">Anything</span>
+            <h2 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight mb-6 font-display drop-shadow-2xl leading-tight pb-2 pt-2">
+              Process <span className="gradient-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-rose-400 animate-gradient-x">Anything</span>
             </h2>
-            <p className="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto font-light leading-relaxed">
+            <p className="text-slate-300 text-lg sm:text-2xl max-w-2xl mx-auto font-light leading-relaxed">
               Upload documents, presentations, or images. Let our serverless intelligence extract the insights instantly.
             </p>
           </div>
@@ -101,7 +107,8 @@ function App() {
               setQuery={setQuery} 
               onSubmit={handleSubmit} 
               isLoading={isLoading} 
-              disabled={!file} 
+              disabled={isLoading} 
+              hasFile={!!file}
             />
           </div>
 
