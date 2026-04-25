@@ -6,33 +6,35 @@ import ResponseCard from './components/ResponseCard';
 import { API_URL, BUCKET_NAME } from './config';
 
 function App() {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState(null);
 
   const handleSubmit = async () => {
-    if (!file && !query.trim()) return;
+    if (files.length === 0 && !query.trim()) return;
 
     setIsLoading(true);
     setResponse(null);
 
     try {
-      let uploadedFileName = "";
+      let uploadedFileNames = [];
       
-      if (file) {
-        // 1. Upload to S3 only if a file was selected
-        const uploadUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${file.name}`;
-        
-        const s3Response = await fetch(uploadUrl, {
-          method: "PUT",
-          body: file,
-        });
+      if (files.length > 0) {
+        // 1. Upload multiple files to S3
+        for (const f of files) {
+          const uploadUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${f.name}`;
+          
+          const s3Response = await fetch(uploadUrl, {
+            method: "PUT",
+            body: f,
+          });
 
-        if (!s3Response.ok) {
-          throw new Error(`S3 Upload Failed: ${s3Response.status} ${s3Response.statusText}`);
+          if (!s3Response.ok) {
+            throw new Error(`S3 Upload Failed for ${f.name}: ${s3Response.status}`);
+          }
+          uploadedFileNames.push(f.name);
         }
-        uploadedFileName = file.name;
       }
 
       // 2. Call your API
@@ -44,7 +46,7 @@ function App() {
         },
         body: JSON.stringify({
           bucket: BUCKET_NAME,
-          image: uploadedFileName,
+          files: uploadedFileNames, // Sending array of files
           query: query,
         }),
       });
@@ -101,14 +103,14 @@ function App() {
             {/* Subtle glow behind the main interactive area */}
             <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 blur-2xl opacity-50 rounded-[3rem] -z-10"></div>
             
-            <UploadBox file={file} setFile={setFile} />
+            <UploadBox files={files} setFiles={setFiles} />
             <QueryInput 
               query={query} 
               setQuery={setQuery} 
               onSubmit={handleSubmit} 
               isLoading={isLoading} 
               disabled={isLoading} 
-              hasFile={!!file}
+              hasFile={files.length > 0}
             />
           </div>
 
