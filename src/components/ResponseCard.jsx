@@ -1,14 +1,66 @@
-import React from 'react';
-import { Sparkles, Bot } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Volume2, VolumeX } from 'lucide-react';
+
+const TypewriterText = ({ text, speed = 15 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+
+  useEffect(() => {
+    setDisplayedText('');
+    let i = 0;
+    if (!text) return;
+    
+    const timer = setInterval(() => {
+      setDisplayedText((prev) => text.substring(0, i + 1));
+      i++;
+      if (i >= text.length) {
+        clearInterval(timer);
+      }
+    }, speed);
+    
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return <>{displayedText}</>;
+};
 
 export default function ResponseCard({ response, isLoading }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    // Cleanup speech synthesis on unmount
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const handleReadAloud = (text) => {
+    if ('speechSynthesis' in window) {
+      if (isPlaying) {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+        return;
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.1; // Slightly faster for a more natural AI feel
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+      
+      setIsPlaying(true);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert("Text-to-speech is not supported in this browser.");
+    }
+  };
+
   if (!response && !isLoading) return null;
 
   return (
     <div className="w-full mt-6 animate-fade-in relative z-10">
       <div className="relative glass-panel p-6 sm:p-8 overflow-visible premium-glow bg-[#121214]/90">
         
-        {/* Core response container with a subtle shimmer effect */}
         <div className="relative z-10 flex gap-5">
           <div className="hidden sm:flex flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 items-center justify-center shadow-[0_0_30px_rgba(168,85,247,0.3)]">
             <Sparkles size={22} className="text-white drop-shadow-md" />
@@ -30,7 +82,7 @@ export default function ResponseCard({ response, isLoading }) {
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
                   </div>
                   <p className="text-sm font-semibold tracking-wider text-indigo-400 uppercase">
-                    Analyzing file with Bedrock...
+                    Analyzing with Bedrock Nova...
                   </p>
                 </div>
                 <div className="space-y-3 mt-4 max-w-2xl px-1">
@@ -46,21 +98,21 @@ export default function ResponseCard({ response, isLoading }) {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#1a1a1f]/80 rounded-2xl rounded-tl-none sm:rounded-tl-2xl border border-white/5 p-5 md:p-6 shadow-inner relative">
+              <div className="bg-[#1a1a1f]/80 rounded-2xl rounded-tl-none sm:rounded-tl-2xl border border-white/5 p-5 md:p-6 shadow-inner relative group">
                 {typeof response === 'string' ? (
                   <p className="text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-[15px] sm:text-base selection:bg-indigo-500/30 selection:text-white">
-                    {response}
+                    <TypewriterText text={response} />
                   </p>
                 ) : response?.error ? (
                   <p className="text-red-400">{response.error}</p>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-6 relative">
                     {response?.labels && response.labels.length > 0 && (
-                      <div>
+                      <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
                         <h3 className="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-3">Detected Objects</h3>
                         <div className="flex flex-wrap gap-2">
                           {response.labels.map((label, i) => (
-                            <span key={i} className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-200 shadow-sm">
+                            <span key={i} className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-200 shadow-sm animate-slide-up" style={{ animationDelay: `${i * 100 + 300}ms` }}>
                               {label}
                             </span>
                           ))}
@@ -68,10 +120,21 @@ export default function ResponseCard({ response, isLoading }) {
                       </div>
                     )}
                     {response?.answer && (
-                      <div>
-                        <h3 className="text-sm font-semibold text-indigo-300 uppercase tracking-wider mb-3">AI Answer</h3>
+                      <div className="relative">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-semibold text-indigo-300 uppercase tracking-wider">AI Analysis</h3>
+                          
+                          {/* Text to Speech Button */}
+                          <button 
+                            onClick={() => handleReadAloud(response.answer)}
+                            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${isPlaying ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-white/5 text-slate-400 hover:text-indigo-300 hover:bg-white/10'}`}
+                            title={isPlaying ? "Stop reading" : "Read aloud"}
+                          >
+                            {isPlaying ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                          </button>
+                        </div>
                         <p className="text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-[15px] sm:text-base selection:bg-indigo-500/30 selection:text-white">
-                          {response.answer}
+                          <TypewriterText text={response.answer} />
                         </p>
                       </div>
                     )}
