@@ -1,7 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { Sparkles, Volume2, VolumeX, Download, Copy } from 'lucide-react';
 
-const TypewriterText = ({ text, speed = 15 }) => {
+const renderMarkdown = (rawText) => {
+  const parts = rawText.split(/(```[\w]*\n[\s\S]*?(?:```|$))/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('```')) {
+      const match = part.match(/```([\w]*)\n([\s\S]*?)(?:```|$)/);
+      if (match) {
+        const lang = match[1];
+        const code = match[2];
+        const isComplete = part.endsWith('```');
+        return (
+          <div key={index} className="relative bg-[#000000]/60 backdrop-blur-md rounded-xl p-4 my-4 font-mono text-sm border border-white/10 group shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+             {isComplete && (
+                <button 
+                    onClick={() => navigator.clipboard.writeText(code)}
+                    className="absolute top-3 right-3 p-1.5 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-500/30 text-xs text-slate-300 hover:text-white flex items-center gap-1.5 border border-white/5"
+                    title="Copy code"
+                >
+                    <Copy size={14} /> Copy
+                </button>
+             )}
+             {lang && <div className="text-[10px] font-bold tracking-widest text-indigo-400/70 mb-3 uppercase">{lang}</div>}
+             <pre className="overflow-x-auto text-indigo-100 whitespace-pre-wrap leading-relaxed">{code}</pre>
+          </div>
+        );
+      }
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
+
+const TypewriterText = ({ text, speed = 10 }) => {
   const [displayedText, setDisplayedText] = useState('');
 
   useEffect(() => {
@@ -20,14 +50,13 @@ const TypewriterText = ({ text, speed = 15 }) => {
     return () => clearInterval(timer);
   }, [text, speed]);
 
-  return <>{displayedText}</>;
+  return <>{renderMarkdown(displayedText)}</>;
 };
 
 export default function ResponseCard({ response, isLoading }) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Cleanup speech synthesis on unmount
     return () => {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -42,17 +71,25 @@ export default function ResponseCard({ response, isLoading }) {
         setIsPlaying(false);
         return;
       }
-      
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.1; // Slightly faster for a more natural AI feel
+      utterance.rate = 1.1;
       utterance.onend = () => setIsPlaying(false);
       utterance.onerror = () => setIsPlaying(false);
-      
       setIsPlaying(true);
       window.speechSynthesis.speak(utterance);
     } else {
       alert("Text-to-speech is not supported in this browser.");
     }
+  };
+
+  const handleDownload = (text) => {
+    const element = document.createElement("a");
+    const file = new Blob([text], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = "FusionX_AI_Report.txt";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   };
 
   if (!response && !isLoading) return null;
@@ -124,14 +161,23 @@ export default function ResponseCard({ response, isLoading }) {
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-sm font-semibold text-indigo-300 uppercase tracking-wider">AI Analysis</h3>
                           
-                          {/* Text to Speech Button */}
-                          <button 
-                            onClick={() => handleReadAloud(response.answer)}
-                            className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${isPlaying ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-white/5 text-slate-400 hover:text-indigo-300 hover:bg-white/10'}`}
-                            title={isPlaying ? "Stop reading" : "Read aloud"}
-                          >
-                            {isPlaying ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                          </button>
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => handleDownload(response.answer)}
+                              className="flex items-center justify-center p-2 rounded-full transition-all duration-300 bg-white/5 text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10"
+                              title="Download Report"
+                            >
+                              <Download size={16} />
+                            </button>
+                            {/* Text to Speech Button */}
+                            <button 
+                              onClick={() => handleReadAloud(response.answer)}
+                              className={`flex items-center justify-center p-2 rounded-full transition-all duration-300 ${isPlaying ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-white/5 text-slate-400 hover:text-indigo-300 hover:bg-white/10'}`}
+                              title={isPlaying ? "Stop reading" : "Read aloud"}
+                            >
+                              {isPlaying ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                            </button>
+                          </div>
                         </div>
                         <p className="text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-[15px] sm:text-base selection:bg-indigo-500/30 selection:text-white">
                           <TypewriterText text={response.answer} />

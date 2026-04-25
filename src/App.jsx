@@ -110,7 +110,7 @@ function App() {
               onSubmit={handleSubmit} 
               isLoading={isLoading} 
               disabled={isLoading} 
-              hasFile={files.length > 0}
+              files={files}
             />
           </div>
 
