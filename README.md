@@ -58,7 +58,7 @@ If you want to run the frontend on your local machine:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/FusionX.git
+   git clone[ https://github.com/yourusername/FusionX.git](https://github.com/DharshanSP/fusionx.git)
    cd FusionX
    ```
 
