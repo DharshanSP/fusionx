@@ -1,4 +1,4 @@
-# 🚀 FusionX: The Serverless Multimodal AI Assistant
+# The Serverless Multimodal AI Assistant
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-fusion--iota--green.vercel.app-6366f1?style=for-the-badge&logo=vercel)](https://fusion-iota-green.vercel.app)
 [![AWS](https://img.shields.io/badge/Powered_by-AWS_Serverless-FF9900?style=for-the-badge&logo=amazon-aws)](https://aws.amazon.com/)
